@@ -1,26 +1,53 @@
-import { ChatSession, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
+import { ChatSession, GenerativeModel, GoogleGenerativeAI, ModelParams, Tool, FunctionCall, Part } from "@google/generative-ai";
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-class Gemini {
-  ApiKey: string;
-  gemini: GoogleGenerativeAI;
-  model: GenerativeModel;
-  chat: ChatSession
 
-  constructor(){
-    this.ApiKey = process.env.GEMINI_API_KEY || "";
-    this.gemini = new GoogleGenerativeAI(this.ApiKey);
-    this.model = this.gemini.getGenerativeModel({
-      model: "gemini-2.0-flash"
-    })
-    this.chat = this.model.startChat();
+class Gemini extends GoogleGenerativeAI {
+  private modelParam: ModelParams
+  private model: GenerativeModel
+  private chat: ChatSession
+  private functionList: Function[]
+
+  constructor(apikey: string, modelName: string, tools: Tool[] = [], functionList: Function[] = []) {
+    super(apikey);
+    this.functionList = functionList
+    this.modelParam = {
+      model: modelName,
+      tools: tools
+    }
+    this.model = super.getGenerativeModel(this.modelParam);
+    this.chat = this.model.startChat()
   }
 
-  async sendMessage(message: string): Promise<string> {
-    let result = await this.chat.sendMessage(message);
+  async sendMessage(msg: string | Array<string | Part>): Promise<any> {
+    let result = await this.chat.sendMessage(msg);
+    let newMsg: Part[] = [];
+    let call = result.response.functionCalls() || [];
+    if (call.length > 0) {
+      for (const v of call) {
+        let apiResponse = await this.functionProcess(v.name, v.args);
+        newMsg.push({
+          functionResponse: {
+            name: v.name,
+            response: apiResponse
+          }
+        })
+        return await this.sendMessage(newMsg);
+      }
+    }
     return result.response.text();
+  }
+
+
+  async functionProcess(functionName: string, args: any): Promise<object> {
+    let func = this.functionList.find(fn => fn.name === functionName);
+    if (!func) {
+      throw new Error(`Function ${functionName} not found.`);
+    }
+    let result = await func(args);
+    return result
   }
 }
 
