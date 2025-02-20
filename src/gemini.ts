@@ -1,8 +1,15 @@
-import { ChatSession, GenerativeModel, GoogleGenerativeAI, ModelParams, Tool, FunctionCall, Part } from "@google/generative-ai";
+import { ChatSession, GenerativeModel, GoogleGenerativeAI, ModelParams, Tool, Part } from "@google/generative-ai";
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+
+type GeminiConfig = {
+  apikey: string,
+  modelName: string,
+  tools?: Tool[],
+  functionList?: Function[]
+}
 
 class Gemini extends GoogleGenerativeAI {
   private modelParam: ModelParams
@@ -10,7 +17,8 @@ class Gemini extends GoogleGenerativeAI {
   private chat: ChatSession
   private functionList: Function[]
 
-  constructor(apikey: string, modelName: string, tools: Tool[] = [], functionList: Function[] = []) {
+  constructor(init : GeminiConfig) {
+    const { apikey, modelName, tools = [], functionList = [] } = init
     super(apikey);
     this.functionList = functionList
     this.modelParam = {
@@ -51,4 +59,4 @@ class Gemini extends GoogleGenerativeAI {
   }
 }
 
-export { Gemini }
+export { Gemini, GeminiConfig }

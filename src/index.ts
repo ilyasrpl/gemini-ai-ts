@@ -1,5 +1,5 @@
 import { FunctionDeclarationsTool } from '@google/generative-ai';
-import { Gemini } from './gemini';
+import { Gemini, GeminiConfig } from './gemini';
 import dotenv from 'dotenv';
 import { GetTimeDeclaration, getTime } from './tools/getTime';
 const readline = require('readline');
@@ -13,20 +13,28 @@ const rl = readline.createInterface({
 
 async function main() {
   const apikey = process.env.GEMINI_API_KEY || ""
-  const modelName = "gemini-2.0-flash";
-
   const functionDeclarationTools: FunctionDeclarationsTool = {
     functionDeclarations: [GetTimeDeclaration],
   }
 
+  const config: GeminiConfig = {
+    apikey: apikey,
+    modelName: "gemini-2.0-flash",
+    tools: [functionDeclarationTools],
+    functionList: [getTime]
+  }
+  
+  const modelName = "gemini-2.0-flash";
+
   const functionCallList = [getTime];
 
-  const gemini = new Gemini(apikey, modelName, [functionDeclarationTools], functionCallList);
+  const gemini = new Gemini(config);
 
   while(true) {
     const question = await rl[Symbol.asyncIterator]().next();
+    if (question.value === 'exit') break
     const response = await gemini.sendMessage(question.value);
-    console.log('Gemini: ', response);
+    console.log(response);
   }
 }
 
