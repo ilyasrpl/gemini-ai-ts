@@ -48,7 +48,6 @@ class Gemini extends GoogleGenerativeAI {
     return result.response.text();
   }
 
-
   async functionProcess(functionName: string, args: any): Promise<object> {
     let func = this.functionList.find(fn => fn.name === functionName);
     if (!func) {

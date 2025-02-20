@@ -23,10 +23,6 @@ async function main() {
     tools: [functionDeclarationTools],
     functionList: [getTime]
   }
-  
-  const modelName = "gemini-2.0-flash";
-
-  const functionCallList = [getTime];
 
   const gemini = new Gemini(config);
 
