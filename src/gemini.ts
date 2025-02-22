@@ -17,7 +17,7 @@ class Gemini extends GoogleGenerativeAI {
   private chat: ChatSession
   private functionList: Function[]
 
-  constructor(init : GeminiConfig) {
+  constructor(init: GeminiConfig) {
     const { apikey, modelName, tools = [], functionList = [] } = init
     super(apikey);
     this.functionList = functionList
@@ -33,22 +33,20 @@ class Gemini extends GoogleGenerativeAI {
     let result = await this.chat.sendMessage(msg);
     let newMsg: Part[] = [];
     let call = result.response.functionCalls() || [];
-    if (call.length > 0) {
-      for (const v of call) {
-        let apiResponse = await this.functionProcess(v.name, v.args);
-        newMsg.push({
-          functionResponse: {
-            name: v.name,
-            response: apiResponse
-          }
-        })
-        return await this.sendMessage(newMsg);
-      }
+    if (call.length == 0) return result.response.text();
+    for (const v of call) {
+      let apiResponse = await this.functionProcess(v.name, v.args);
+      newMsg.push({
+        functionResponse: {
+          name: v.name,
+          response: apiResponse
+        }
+      })
+      return await this.sendMessage(newMsg);
     }
-    return result.response.text();
   }
 
-  async functionProcess(functionName: string, args: any): Promise<object> {
+  private async functionProcess(functionName: string, args: any): Promise<object> {
     let func = this.functionList.find(fn => fn.name === functionName);
     if (!func) {
       throw new Error(`Function ${functionName} not found.`);
