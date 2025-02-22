@@ -7,6 +7,7 @@ dotenv.config();
 type GeminiConfig = {
   apikey: string,
   modelName: string,
+  systemInstruction?: string,
   tools?: Tool[],
   functionList?: Function[]
 }
@@ -18,12 +19,13 @@ class Gemini extends GoogleGenerativeAI {
   private functionList: Function[]
 
   constructor(init: GeminiConfig) {
-    const { apikey, modelName, tools = [], functionList = [] } = init
+    const { apikey, modelName, systemInstruction, tools = [], functionList = [] } = init
     super(apikey);
     this.functionList = functionList
     this.modelParam = {
       model: modelName,
-      tools: tools
+      tools: tools,
+      systemInstruction: systemInstruction
     }
     this.model = super.getGenerativeModel(this.modelParam);
     this.chat = this.model.startChat()

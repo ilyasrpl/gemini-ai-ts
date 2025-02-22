@@ -21,7 +21,8 @@ async function main() {
     apikey: apikey,
     modelName: "gemini-2.0-flash",
     tools: [functionDeclarationTools],
-    functionList: [getTime]
+    functionList: [getTime],
+    systemInstruction: "my time zone is Asia/Jakarta"
   }
 
   const gemini = new Gemini(config);
