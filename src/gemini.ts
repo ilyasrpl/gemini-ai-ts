@@ -36,11 +36,11 @@ class Gemini extends GoogleGenerativeAI {
     this.chat = this.model.startChat()
   }
 
-  async sendMessage(msg: string | Array<string | Part>): Promise<any> {
+  async sendMessage(msg: string | Array<string | Part>): Promise<string | undefined> {
     let result = await this.chat.sendMessage(msg);
     let newMsg: Part[] = [];
     let call = result.response.functionCalls() || [];
-    if (call.length == 0) return result.response.text();
+    if (call.length == 0) return result.response.text() || "";
     for (const v of call) {
       let apiResponse = await this.functionProcess(v.name, v.args);
       newMsg.push({
