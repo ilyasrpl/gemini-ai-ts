@@ -1,6 +1,7 @@
 import { Gemini } from "../gemini";
 import { FunctionDeclaration, SchemaType } from "@google/generative-ai";
 import moment from "moment-timezone";
+require('dotenv').config();
 
 const SetReminderDeclaration: FunctionDeclaration = {
   name: "setReminder",
@@ -21,7 +22,7 @@ const SetReminderDeclaration: FunctionDeclaration = {
   }
 }
 
-function setReminder({time, message}: any): object {
+async function setReminder({time, message}: any): Promise<object> {
   const timeTarget = moment(time, "YYYY-MM-DD hh:mm:ss");
   const timeNow = moment().tz("Asia/Jakarta");
   const diff = timeTarget.diff(timeNow, "seconds");
@@ -31,9 +32,11 @@ function setReminder({time, message}: any): object {
       message : "reminder already passed"
     }
 
-
-  setTimeout(() => {
-    console.log(message);
+  setTimeout(async() => {
+    const apikey = process.env.GEMINI_API_KEY || "";
+    const geminiPrompt = `send a message for me, message is : ${message}`;
+    const geminiResponse = await Gemini.generateText({apikey: apikey, prompt: geminiPrompt, modelName: "gemini-2.0-flash"});
+    console.log(geminiResponse);
   }, diff * 1000);
 
   return {
