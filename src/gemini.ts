@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+interface GenerateContentParams {
+  apikey: string
+  prompt: string
+  modelName: string
+}
 
 type GeminiConfig = {
   apikey: string,
@@ -56,6 +61,14 @@ class Gemini extends GoogleGenerativeAI {
     let result = await func(args);
     return result
   }
-}
 
+  static async generateText(GenerateContentParams: GenerateContentParams): Promise<string> {
+    const { apikey, prompt, modelName } = GenerateContentParams
+    const genAI = new GoogleGenerativeAI(apikey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return response.text();
+  }
+}
 export { Gemini, GeminiConfig }

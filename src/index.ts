@@ -2,6 +2,7 @@ import { FunctionDeclarationsTool } from '@google/generative-ai';
 import { Gemini, GeminiConfig } from './gemini';
 import dotenv from 'dotenv';
 import { GetTimeDeclaration, getTime } from './tools/getTime';
+import { SetReminderDeclaration, setReminder } from './tools/setReminder';
 const readline = require('readline');
 
 dotenv.config();
@@ -14,14 +15,14 @@ const rl = readline.createInterface({
 async function main() {
   const apikey = process.env.GEMINI_API_KEY || ""
   const functionDeclarationTools: FunctionDeclarationsTool = {
-    functionDeclarations: [GetTimeDeclaration],
+    functionDeclarations: [GetTimeDeclaration, SetReminderDeclaration],
   }
 
   const config: GeminiConfig = {
     apikey: apikey,
     modelName: "gemini-2.0-flash",
     tools: [functionDeclarationTools],
-    functionList: [getTime],
+    functionList: [getTime, setReminder],
     systemInstruction: "my time zone is Asia/Jakarta"
   }
 

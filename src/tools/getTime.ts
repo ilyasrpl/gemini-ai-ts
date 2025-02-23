@@ -25,7 +25,7 @@ const GetTimeDeclaration: FunctionDeclaration = {
   }
 }
 
-function getTime({timeZone = "Asia/Jakarta"}: any) {
+function getTime({timeZone = "Asia/Jakarta"}: any): object {
   const time = moment().tz(timeZone);
   const res = {
     year: time.year(),
